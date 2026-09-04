@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../services/api.js'
+import { AuthContext } from '../context/AuthContext'
 
 export default function Login() {
   const navigate = useNavigate()
+  const { handleLogin } = useContext(AuthContext)
+  
   const [user, setUser] = useState('csuarez')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -12,8 +14,7 @@ export default function Login() {
     e.preventDefault()
     setError('')
     try {
-      await login(user, password)
-      // TODO: guardar el token real (localStorage / context) cuando el backend valide de verdad
+      await handleLogin(user, password)
       navigate('/proyectos')
     } catch (err) {
       setError('No pudimos iniciar sesión. Revisa tus datos.')

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { getProyectosPorUsuario } = require('./projectController'); 
+const verifyToken = require('../../core/auth/middleware/authMiddleware');
 
-// Cuando el frontend pida GET /api/proyectos/csuarez, se ejecutará el controlador
-router.get('/:codigo', getProyectosPorUsuario);
+router.get('/:codigo', verifyToken, getProyectosPorUsuario);
 
 module.exports = router;

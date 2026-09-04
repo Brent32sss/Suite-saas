@@ -30,7 +30,7 @@ sql.connect(dbConfig).then(() => {
     console.log("✅ Conectado a la base de datos SQL Server exitosamente.");
     
     // 2. ACTIVAMOS LAS RUTAS EN EL SERVIDOR
-    app.use('/api/auth', authRoutes);
+    app.use('/api', authRoutes);
     app.use('/api/proyectos', projectRoutes); 
     
     const PORT = process.env.PORT || 3000;
