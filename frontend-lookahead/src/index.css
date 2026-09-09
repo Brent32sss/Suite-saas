@@ -12,12 +12,18 @@
 }
 
 @layer components {
-  /* Botón primario con gradiente — se repite en varias pantallas */
+  /* Botón primario verde general (Plano, sin gradiente) */
   .btn-gradient {
-    background: linear-gradient(90deg, theme('colors.primary') 0%, theme('colors.primary-light') 100%);
+    background-color: theme('colors.primary');
+    color: white;
+    transition: background-color 0.2s ease;
+  }
+  .btn-gradient:hover {
+    background-color: theme('colors.primary-light');
   }
 
+  /* Iconos verdes generales (Planos, sin gradiente) */
   .icon-gradient {
-    background: linear-gradient(135deg, theme('colors.primary-light') 0%, #0B4A40 100%);
+    background-color: theme('colors.primary');
   }
 }
