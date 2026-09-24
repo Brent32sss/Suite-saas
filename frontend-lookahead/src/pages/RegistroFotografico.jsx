@@ -44,42 +44,59 @@ export default function RegistroFotografico() {
     setLoading(true);
 
     try {
+      // 1. Preparar metadatos para la marca de agua
       const metadata = {
         fecha,
         ubicacion,
-        usuario: user?.nombre || user?.codigo || 'Usuario'
+        usuario: user?.nombre || user?.codigo || 'Usuario Obra'
       };
 
+      // 2. Procesar la imagen stampando la franja e información en el Canvas
       const processedBase64 = await processImageWithWatermark(file, metadata);
 
+      // 3. Descarga local opcional en el dispositivo
       if (descargaLocal) {
         const link = document.createElement('a');
         link.href = processedBase64;
-        const nombreProyecto = proyecto ? proyecto.codigo : 'Obra';
+        const nombreProyecto = proyecto ? (proyecto.codigo || proyecto.nombre) : 'Obra';
         link.download = `Foto_${nombreProyecto}_${fecha}.jpg`;
         link.click();
       }
 
+      // 4. Guardar en Firebase (Storage + Firestore)
+      await guardarRegistroFotografico({
+        imageBase64: processedBase64,
+        empresaId: user?.empresaId || 'empresa_demo_01',
+        proyectoId: proyecto?.id || proyecto?.codigo || 'proyecto_demo_01',
+        usuarioId: user?.id || user?.codigo || 'usuario_demo_01',
+        nombreUsuario: metadata.usuario,
+        comentario: `Registro de avance - ${proyecto?.nombre || 'Obra'}`,
+        gps: { texto: ubicacion }
+      });
+
+      // 5. Envío opcional a Webhook / Google Sheets (si está configurado)
       const endpoint = proyecto?.sheets_id || proyecto?.gas_endpoint;
-      
       if (endpoint) {
-        await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            imagen: processedBase64,
-            fecha,
-            ubicacion,
-            usuario: metadata.usuario
-          })
-        });
-        alert('Foto procesada y subida exitosamente.');
-      } else {
-        alert('Foto procesada localmente (Este proyecto no tiene un Webhook configurado aún).');
+        try {
+          await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              imagen: processedBase64,
+              fecha,
+              ubicacion,
+              usuario: metadata.usuario
+            })
+          });
+        } catch (gasErr) {
+          console.warn('Error en webhook secundario:', gasErr);
+        }
       }
+
+      alert('¡Fotografía procesada con marca de agua y guardada en Firebase exitosamente!');
     } catch (err) {
-      console.error(err);
-      alert('Error al procesar o enviar la imagen.');
+      console.error('Error al guardar el registro:', err);
+      alert('Ocurrió un error al procesar o subir la fotografía.');
     } finally {
       setLoading(false);
     }

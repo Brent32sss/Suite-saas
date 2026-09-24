@@ -1,4 +1,4 @@
-export const processImageWithWatermark = (file, metadata) => {
+export const processImageWithWatermark = (file, metadata = {}) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -15,7 +15,7 @@ export const processImageWithWatermark = (file, metadata) => {
         // 1. Dibujar la imagen original
         ctx.drawImage(img, 0, 0);
 
-        // 2. Crear franja inferior traslúcida (9% del alto de la imagen)
+        // 2. Crear franja inferior traslúcida (9% del alto)
         const bannerHeight = canvas.height * 0.09;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
         ctx.fillRect(0, canvas.height - bannerHeight, canvas.width, bannerHeight);
@@ -24,12 +24,17 @@ export const processImageWithWatermark = (file, metadata) => {
         const fontSize = Math.max(16, Math.floor(canvas.height * 0.025));
         ctx.font = `${fontSize}px Arial, sans-serif`;
         ctx.fillStyle = '#FFFFFF';
-        
-        // 4. Estampar los metadatos
-        const text = `Fecha: ${metadata.fecha} | Loc: ${metadata.ubicacion} | Por: ${metadata.usuario}`;
+
+        // 4. Preparar valores por defecto para evitar "undefined"
+        const fecha = metadata.fecha || new Date().toLocaleString('es-PE');
+        const ubicacion = metadata.ubicacion || 'Sin GPS';
+        const usuario = metadata.usuario || 'Usuario Obra';
+
+        // 5. Estampar los metadatos
+        const text = `Fecha: ${fecha} | Loc: ${ubicacion} | Por: ${usuario}`;
         ctx.fillText(text, 20, canvas.height - (bannerHeight / 2) + (fontSize / 3));
 
-        // 5. Retornar imagen procesada en Base64
+        // 6. Retornar imagen procesada en Base64
         resolve(canvas.toDataURL('image/jpeg', 0.85));
       };
       img.onerror = reject;
