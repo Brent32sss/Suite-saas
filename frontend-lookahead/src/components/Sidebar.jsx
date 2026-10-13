@@ -14,6 +14,7 @@ const categoriasAplicaciones = [
       </svg>
     ),
     apps: [
+      { nombre: 'Reporte Diario', ruta: '/reporte-diario' }, // <-- NUEVA OPCIÓN
       { nombre: 'Registro Fotográfico', ruta: '/registro-fotografico' },
       { nombre: 'Directorio de Obra', ruta: '/directorio' }
     ]
@@ -44,13 +45,13 @@ export default function Sidebar({ isOpen, onClose }) {
   // Detectar si estamos dentro de una herramienta
   const isInsideTool = location.pathname !== '/proyectos' && location.pathname !== '/' && location.pathname !== '/apps';
   
-  // Detectar específicamente si estamos en Registro Fotográfico para cambiar el color
-  const isCameraApp = location.pathname.includes('registro-fotografico');
+  // Detectar si estamos en Registro Fotográfico o Reporte Diario para unificar el color corporativo
+  const isDarkApp = location.pathname.includes('registro-fotografico') || location.pathname.includes('reporte-diario');
 
   // ESTILOS DINÁMICOS: Forma y aspecto estáticos, color de texto dinámico
-  const roleColorStyle = isCameraApp ? 'text-[#1e293b]' : 'text-primary';
+  const roleColorStyle = isDarkApp ? 'text-[#1e293b]' : 'text-primary';
   const navLinkStyle = `bg-slate-50 border border-slate-200 font-medium hover:bg-slate-100 ${
-    isCameraApp ? 'text-[#1e293b]' : 'text-primary'
+    isDarkApp ? 'text-[#1e293b]' : 'text-primary'
   }`;
 
   useEffect(() => {
