@@ -4,9 +4,7 @@ import { doc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 /**
- * 1. GUARDAR ACTIVIDAD Y FOTOS
- * Usamos { merge: true } para que si el reporte del día no existe, lo cree, 
- * y si ya existe, solo agregue esta nueva actividad sin borrar lo demás.
+ * 1. GUARDAR ACTIVIDAD Y FOTOS (Nuevo Registro)
  */
 export async function guardarActividadService({ projectId, fecha, texto, fotosNuevas, usuarioFirma }) {
   const docId = `${fecha}_${projectId}`;
@@ -15,7 +13,6 @@ export async function guardarActividadService({ projectId, fecha, texto, fotosNu
 
   const fotosSubidas = [];
 
-  // Si el usuario adjuntó fotos, las subimos a Firebase Storage primero
   if (fotosNuevas && fotosNuevas.length > 0) {
     for (let i = 0; i < fotosNuevas.length; i++) {
       const file = fotosNuevas[i];
@@ -32,7 +29,6 @@ export async function guardarActividadService({ projectId, fecha, texto, fotosNu
     }
   }
 
-  // Guardamos o actualizamos el documento en Firestore
   await setDoc(reporteRef, {
     id_proyect: projectId,
     fecha_proyect: fecha,
@@ -48,7 +44,7 @@ export async function guardarActividadService({ projectId, fecha, texto, fotosNu
 }
 
 /**
- * 2. GUARDAR PERSONAL
+ * 2. GUARDAR PERSONAL (Nuevo Registro)
  */
 export async function guardarPersonalService({ projectId, fecha, listaPersonal, usuarioFirma }) {
   const docId = `${fecha}_${projectId}`;
@@ -63,7 +59,7 @@ export async function guardarPersonalService({ projectId, fecha, listaPersonal, 
 }
 
 /**
- * 3. GUARDAR ANOTACIONES
+ * 3. GUARDAR ANOTACIONES (Nuevo Registro)
  */
 export async function guardarAnotacionesService({ projectId, fecha, listaAnotaciones, usuarioFirma }) {
   const docId = `${fecha}_${projectId}`;
@@ -78,7 +74,7 @@ export async function guardarAnotacionesService({ projectId, fecha, listaAnotaci
 }
 
 /**
- * 4. CONSULTAR REPORTE (Para la pestaña Modificar o generar PDF)
+ * 4. CONSULTAR REPORTE POR FECHA
  */
 export async function consultarReportePorFecha(projectId, fecha) {
   const docId = `${fecha}_${projectId}`;
@@ -89,4 +85,25 @@ export async function consultarReportePorFecha(projectId, fecha) {
     return docSnap.data();
   }
   return null;
+}
+
+/**
+ * 5. ACTUALIZAR REPORTE COMPLETO (Pestaña Modificar)
+ * Sobrescribe las listas editadas manteniendo integridad del documento
+ */
+export async function actualizarReporteCompletoService({ projectId, fecha, actividades, personal, anotaciones, usuarioFirma }) {
+  const docId = `${fecha}_${projectId}`;
+  const reporteRef = doc(db, 'reportes_diarios', docId);
+
+  await setDoc(reporteRef, {
+    id_proyect: projectId,
+    fecha_proyect: fecha,
+    modificado_por: usuarioFirma,
+    ultima_modificacion: new Date().toISOString(),
+    actividades: actividades || [],
+    personal: personal || [],
+    anotaciones: anotaciones || []
+  }, { merge: true });
+
+  return true;
 }
