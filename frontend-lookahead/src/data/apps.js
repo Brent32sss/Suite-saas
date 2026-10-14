@@ -12,7 +12,14 @@ export const apps = [
     title: 'Registro Fotográfico',
     subtitle: 'Comunicación',
     enabled: true,
-    route: '/registro-fotografico', // Esta es la ruta que usaremos
+    route: '/registro-fotografico',
+  },
+  {
+    id: 'reporte-diario',
+    title: 'Reporte Diario',
+    subtitle: 'Comunicación',
+    enabled: true,
+    route: '/reporte-diario',
   },
   {
     id: 'presupuesto',
